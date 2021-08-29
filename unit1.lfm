@@ -64,16 +64,6 @@ object Form1: TForm1
       Width = 65
       Shape = stCircle
     end
-    object Button1: TButton
-      Left = 1241
-      Height = 30
-      Top = 0
-      Width = 75
-      Align = alRight
-      Caption = 'Exit'
-      OnClick = Button1Click
-      TabOrder = 0
-    end
     object Label3: TLabel
       Left = 304
       Height = 15
@@ -154,9 +144,40 @@ object Form1: TForm1
       ParentColor = False
       ParentFont = False
     end
+    object Label11: TLabel
+      Left = 888
+      Height = 15
+      Top = 8
+      Width = 86
+      Caption = 'OBS Websocket:'
+      Font.Color = clWhite
+      ParentColor = False
+      ParentFont = False
+    end
+    object Label12: TLabel
+      Left = 984
+      Height = 15
+      Top = 8
+      Width = 36
+      Caption = 'Offline'
+      Font.Color = clRed
+      ParentColor = False
+      ParentFont = False
+    end
+    object Label13: TLabel
+      Left = 1056
+      Height = 15
+      Top = 8
+      Width = 75
+      Caption = 'Reconnect In: '
+      Font.Color = clWhite
+      ParentColor = False
+      ParentFont = False
+      Visible = False
+    end
   end
   object PopupMenu1: TPopupMenu
-    left = 1208
+    left = 1280
     top = 2
     object MenuItem1: TMenuItem
       Caption = 'Options'
@@ -168,6 +189,20 @@ object Form1: TForm1
     object MenuItem3: TMenuItem
       Caption = 'Reset Position'
       OnClick = MenuItem3Click
+    end
+    object MenuItem6: TMenuItem
+      Caption = '-'
+    end
+    object MenuItem5: TMenuItem
+      Caption = 'Connect'
+      OnClick = MenuItem5Click
+    end
+    object MenuItem7: TMenuItem
+      Caption = '-'
+    end
+    object MenuItem4: TMenuItem
+      Caption = 'Exit'
+      OnClick = MenuItem4Click
     end
   end
   object jsonprop: TJSONPropStorage
@@ -189,7 +224,13 @@ object Form1: TForm1
       end>
     JSONFileName = 'obsmonitor.json'
     Formatted = True
-    left = 1176
+    left = 1248
+    top = 2
+  end
+  object Timer1: TTimer
+    Enabled = False
+    OnTimer = Timer1Timer
+    left = 1216
     top = 2
   end
 end

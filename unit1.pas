@@ -14,10 +14,12 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
-    Button1: TButton;
     jsonprop: TJSONPropStorage;
     Label1: TLabel;
     Label10: TLabel;
+    Label11: TLabel;
+    Label12: TLabel;
+    Label13: TLabel;
     Label2: TLabel;
     Label3: TLabel;
     Label4: TLabel;
@@ -29,14 +31,20 @@ type
     MenuItem1: TMenuItem;
     MenuItem2: TMenuItem;
     MenuItem3: TMenuItem;
+    MenuItem4: TMenuItem;
+    MenuItem5: TMenuItem;
+    MenuItem6: TMenuItem;
+    MenuItem7: TMenuItem;
     Panel1: TPanel;
     PopupMenu1: TPopupMenu;
     Shape1: TShape;
     Shape2: TShape;
-    procedure Button1Click(Sender: TObject);
+    Timer1: TTimer;
     procedure FormCreate(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure MenuItem3Click(Sender: TObject);
+    procedure MenuItem4Click(Sender: TObject);
+    procedure MenuItem5Click(Sender: TObject);
     procedure Panel1MouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure Panel1MouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer
@@ -44,12 +52,15 @@ type
     procedure Panel1MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure changeMonIndex(Sender: TObject);
+    procedure Timer1Timer(Sender: TObject);
   private
     FCommunicator: TWebsocketCommunicator;
     XPos, YPos: Integer;
     Moving: Boolean;
+    start: integer;
     procedure ReceiveMessage(Sender: TObject);
     procedure StreamClosed(Sender: TObject);
+    procedure ComConnect();
   public
     destructor Destroy; override;
   end;
@@ -94,9 +105,20 @@ begin
   jsonprop.Save;
 end;
 
+procedure TForm1.Timer1Timer(Sender: TObject);
+begin
+  Label13.Caption := Format('Connect In: %d seconds', [start]);
+  Label13.Visible := True;
+  Dec(start);
+  if (start < 0) then begin
+    Timer1.Enabled := False;
+    Label13.Visible := False;
+    ComConnect();
+  end;
+end;
+
 procedure TForm1.FormCreate(Sender: TObject);
 var
-  client: TWebsocketClient;
   mons, I, mon, topm, leftm, port: Integer;
   menui: TMenuItemExtended;
   url: String;
@@ -129,6 +151,22 @@ begin
   Form1.Left := leftm;//Screen.Monitors[mon].Left;
   Form1.Width := Screen.Monitors[mon].Width;
 
+  start := 5;
+  Timer1.Enabled := True;
+  MenuItem5.Enabled := True;
+
+  jsonprop.Save;
+end;
+
+procedure TForm1.ComConnect();
+var
+  client: TWebsocketClient;
+  port: Integer;
+  url: String;
+begin
+  port := jsonprop.ReadInteger('port', 4444);
+  url := jsonprop.ReadString('url', '127.0.0.1');
+
   client := TWebsocketClient.Create(url, port);
   try
     try
@@ -136,14 +174,16 @@ begin
       FCommunicator.OnClose := @StreamClosed;
       FCommunicator.OnReceiveMessage := @ReceiveMessage;
       FCommunicator.StartReceiveMessageThread;
+      Label12.Caption := 'Online';
+      Label12.Font.Color := clGreen;
+      MenuItem5.Enabled := False;
     except
-      Form1.Close;
+      start := 10;
+      Timer1.Enabled := True;
     end;
   except
     client.Free;
   end;
-
-  jsonprop.Save;
 end;
 
 procedure TForm1.MenuItem1Click(Sender: TObject);
@@ -159,6 +199,18 @@ begin
   jsonprop.StoredValue['top'] := Form1.Top.ToString;
   jsonprop.StoredValue['left'] := Form1.Left.ToString;
   jsonprop.Save;
+end;
+
+procedure TForm1.MenuItem4Click(Sender: TObject);
+begin
+  Form1.Close;
+end;
+
+procedure TForm1.MenuItem5Click(Sender: TObject);
+begin
+  ComConnect();
+  Timer1.Enabled := False;
+  Label13.Visible := False;
 end;
 
 procedure TForm1.Panel1MouseDown(Sender: TObject; Button: TMouseButton;
@@ -190,14 +242,16 @@ begin
   jsonprop.Save;
 end;
 
-procedure TForm1.Button1Click(Sender: TObject);
-begin
-  Form1.Close;
-end;
-
 procedure TForm1.StreamClosed(Sender: TObject);
 begin
-  {ShowMessage('Connection to '+ FCommunicator.SocketStream.RemoteAddress.Address+ ' closed');}
+  //ShowMessage('Connection to '+ FCommunicator.SocketStream.RemoteAddress.Address+ ' closed');
+  MenuItem5.Enabled := True;
+  Label12.Caption := 'Offline';
+  Label12.Font.Color := clRed;
+  start := 10;
+  Timer1.Interval := 1000;
+  Timer1.Enabled := True;
+  //Button1.Click;
 end;
 
 procedure TForm1.ReceiveMessage(Sender: TObject);
