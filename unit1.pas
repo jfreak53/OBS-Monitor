@@ -178,11 +178,15 @@ begin
       Label12.Font.Color := clGreen;
       MenuItem5.Enabled := False;
     except
+      //ShowMessage('Except1');
       start := 10;
       Timer1.Enabled := True;
     end;
   except
+    //ShowMessage('Except2');
     client.Free;
+    start := 10;
+    Timer1.Enabled := True;
   end;
 end;
 
@@ -208,9 +212,9 @@ end;
 
 procedure TForm1.MenuItem5Click(Sender: TObject);
 begin
-  ComConnect();
   Timer1.Enabled := False;
   Label13.Visible := False;
+  ComConnect();
 end;
 
 procedure TForm1.Panel1MouseDown(Sender: TObject; Button: TMouseButton;
@@ -245,13 +249,17 @@ end;
 procedure TForm1.StreamClosed(Sender: TObject);
 begin
   //ShowMessage('Connection to '+ FCommunicator.SocketStream.RemoteAddress.Address+ ' closed');
+  //ShowMessage('Except3');
   MenuItem5.Enabled := True;
   Label12.Caption := 'Offline';
   Label12.Font.Color := clRed;
-  start := 10;
-  Timer1.Interval := 1000;
-  Timer1.Enabled := True;
+  //start := 10;
+  //Timer1.Interval := 1000;
+  //Timer1.Enabled := True;
   //Button1.Click;
+  Timer1.Enabled := False;
+  Label13.Visible := False;
+  ComConnect();
 end;
 
 procedure TForm1.ReceiveMessage(Sender: TObject);
